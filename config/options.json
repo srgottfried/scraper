@@ -1,0 +1,15 @@
+{
+    "labels": [
+        {
+            "label": "meta",
+            "attrs": [
+                {
+                    "name": "description"
+                },
+                {
+                    "property": "og:description"
+                }
+            ]
+        }
+    ]
+}

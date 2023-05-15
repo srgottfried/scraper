@@ -1,0 +1,53 @@
+import json
+from bs4 import BeautifulSoup
+import requests
+from scripts.read_config import read_conf
+
+class WebScraper:
+    def __init__(self, url: str) -> None:
+        self._url = url
+        self._all_data = {}
+        self._soup = self._get_soup(url)
+        self._title = self._scrap_title()
+        self._description = self._scrap_description()
+        
+    @staticmethod
+    def _get_soup(url: str) -> BeautifulSoup:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                html = response.content
+                soup = BeautifulSoup(html, 'lxml')
+                return soup
+            raise requests.RequestException('status code: ' + response.status_code)
+        except:
+            raise requests.RequestException('Invalid web site')
+
+    def _scrap_title(self) -> None:
+        try:
+            self._all_data["title"] = self._soup.title.string
+        except:
+            self._all_data["title"] = None
+
+    def _scrap_description(self) -> None:
+        self._all_data["description"] = None
+        ctrl_size = 0
+        conf = read_conf()
+        for label in conf.get("labels"):
+            for attr in label.get("attrs"):
+                description = self._soup.find(label.get("label"), attrs=attr)
+                if description and len(description['content']) > ctrl_size:
+                    self._all_data["description"] = description['content']
+                    ctrl_size = len(self._all_data["description"])
+
+    @property
+    def get_title(self) -> str:
+        return self._all_data["title"]
+    
+    @property
+    def get_description(self) -> str:
+        return self._all_data["description"]
+    
+    @property
+    def get_all_data(self) -> dict:
+        return self._all_data
