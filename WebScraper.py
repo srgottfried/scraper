@@ -11,14 +11,12 @@ class WebScraper:
         self._title = self._scrap_title()
         self._description = self._scrap_description()
         
-    @staticmethod
-    def _get_soup(url: str) -> BeautifulSoup:
+    def _get_soup(self) -> None:
         try:
-            response = requests.get(url)
+            response = requests.get(self._url)
             if response.status_code == 200:
                 html = response.content
-                soup = BeautifulSoup(html, 'lxml')
-                return soup
+                self._soup = BeautifulSoup(html, 'lxml')
             raise requests.RequestException('status code: ' + response.status_code)
         except:
             raise requests.RequestException('Invalid web site')
@@ -30,16 +28,18 @@ class WebScraper:
             self._all_data["title"] = None
 
     def _scrap_description(self) -> None:
-        self._all_data["description"] = None
-        ctrl_size = 0
-        conf = read_conf()
-        for label in conf.get("labels"):
-            for attr in label.get("attrs"):
-                description = self._soup.find(label.get("label"), attrs=attr)
-                if description and len(description['content']) > ctrl_size:
-                    self._all_data["description"] = description['content']
-                    ctrl_size = len(self._all_data["description"])
-
+        try:
+            ctrl_size = 0
+            conf = read_conf()
+            for label in conf.get("labels"):
+                for attr in label.get("attrs"):
+                    description = self._soup.find(label.get("label"), attrs=attr)
+                    if description and len(description['content']) > ctrl_size:
+                        self._all_data["description"] = description['content']
+                        ctrl_size = len(self._all_data["description"])
+        except:
+            self._all_data["description"] = None
+            
     @property
     def get_title(self) -> str:
         return self._all_data["title"]
