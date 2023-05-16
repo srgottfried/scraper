@@ -1,6 +1,7 @@
 import json
 from bs4 import BeautifulSoup
 import requests
+from exceptions import ScrapContentException
 
 class WebScraper:
     def __init__(self, url: str) -> None:
@@ -10,7 +11,7 @@ class WebScraper:
         self._get_soup()
         self._get_conf()
         self._scrap_title()
-        self._scrap_description()
+        self._scrap_content()
         
     def _get_soup(self) -> None:
         try:
@@ -29,7 +30,7 @@ class WebScraper:
             self._conf = json.loads(file.read())
             file.close()
         except:
-            return None
+            raise FileNotFoundError('options.json file not found')
 
     def _scrap_title(self) -> None:
         try:
@@ -37,17 +38,23 @@ class WebScraper:
         except:
             self._all_data["title"] = None
 
-    def _scrap_description(self) -> None:
+    def _scrap_content(self) -> None:
         try:
-            ctrl_size = 0
-            for label in self._conf.get("labels"):
-                for attr in label.get("attrs"):
-                    description = self._soup.find(label.get("label"), attrs=attr)
-                    if description and len(description['content']) > ctrl_size:
-                        self._all_data["description"] = description['content']
-                        ctrl_size = len(self._all_data["description"])
+            for simple_data in self._conf["metadata"]:
+                ctrl_size = 0
+                name = simple_data["name"]
+                for attr in simple_data["attrs"]:
+                    content = self._soup.find(simple_data["label"], attrs=attr)
+                    if content and len(content['content']) > ctrl_size:
+                        self._all_data[name] = content['content']
+                        ctrl_size = len(self._all_data[name])
+                for class_ in simple_data["class_"]:
+                    content = self._soup.find(simple_data["label"], class_=class_)
+                    if content and len(content['content']) > ctrl_size:
+                        self._all_data[name] = content['content']
+                        ctrl_size = len(self._all_data[name])
         except:
-            self._all_data["description"] = None
+            raise ScrapContentException()
             
     @property
     def get_title(self) -> str:

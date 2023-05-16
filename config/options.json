@@ -1,6 +1,6 @@
 {
-    "labels": [
-        {
+    "metadata": [
+        {   "name": "description",
             "label": "meta",
             "attrs": [
                 {
@@ -9,6 +9,9 @@
                 {
                     "property": "og:description"
                 }
+            ],
+            "class_": [
+                "desc"
             ]
         }
     ]
