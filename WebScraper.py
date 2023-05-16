@@ -1,7 +1,8 @@
 import json
-from bs4 import BeautifulSoup
 import requests
-from exceptions import ScrapContentException
+from bs4 import BeautifulSoup
+from datetime import date
+from exceptions import ScrapCustomMetadataException, ScrapDefaultMetadataException
 
 class WebScraper:
     def __init__(self, url: str) -> None:
@@ -10,8 +11,8 @@ class WebScraper:
         self._all_data = {}
         self._get_soup()
         self._get_conf()
-        self._scrap_title()
-        self._scrap_content()
+        self._scrap_default_metadata()
+        self._scrap_custom_metadata()
         
     def _get_soup(self) -> None:
         try:
@@ -32,13 +33,14 @@ class WebScraper:
         except:
             raise FileNotFoundError('options.json file not found')
 
-    def _scrap_title(self) -> None:
+    def _scrap_default_metadata(self) -> None:
         try:
             self._all_data["title"] = self._soup.title.string
+            self._all_data["date"] = str(date.today())
         except:
-            self._all_data["title"] = None
+            raise ScrapDefaultMetadataException()
 
-    def _scrap_content(self) -> None:
+    def _scrap_custom_metadata(self) -> None:
         try:
             for simple_data in self._conf["metadata"]:
                 ctrl_size = 0
@@ -54,15 +56,15 @@ class WebScraper:
                         self._all_data[name] = content['content']
                         ctrl_size = len(self._all_data[name])
         except:
-            raise ScrapContentException()
+            raise ScrapCustomMetadataException()
             
     @property
     def get_title(self) -> str:
         return self._all_data["title"]
-    
+
     @property
-    def get_description(self) -> str:
-        return self._all_data["description"]
+    def get_date(self) -> str:
+        return self._date["date"]
     
     @property
     def get_all_data(self) -> dict:

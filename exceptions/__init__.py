@@ -1,1 +1,2 @@
-from .ScrapContentException import ScrapContentException
+from .ScrapCustomMetadataException import ScrapCustomMetadataException
+from .ScrapDefaultMetadataException import ScrapDefaultMetadataException
