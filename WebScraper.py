@@ -4,7 +4,14 @@ from bs4 import BeautifulSoup
 from datetime import date
 from exceptions import ScrapCustomMetadataException, ScrapDefaultMetadataException
 
+
 class WebScraper:
+    """
+    Performs web scraping from a url. 
+    Get web title and date of webscraping by default.
+    Allows custom webscraping through a json file.
+    """
+
     def __init__(self, url: str) -> None:
         self.DEFAULT_CONFIG_URI = "config/options.json"
         self._url = url
@@ -64,10 +71,8 @@ class WebScraper:
 
     @property
     def get_date(self) -> str:
-        return self._date["date"]
+        return self._all_data["date"]
     
     @property
     def get_all_data(self) -> dict:
         return self._all_data
-    
-    
