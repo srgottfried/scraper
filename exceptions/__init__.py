@@ -1,2 +1,0 @@
-from .ScrapCustomMetadataException import ScrapCustomMetadataException
-from .ScrapDefaultMetadataException import ScrapDefaultMetadataException
