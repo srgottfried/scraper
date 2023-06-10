@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import date
 from typing import Text, Dict
+import sys
 
 
 class WebScraper:
@@ -94,3 +95,7 @@ class WebScraper:
 
     def __str__(self) -> str:
         return str(self.metadata)
+
+
+if __name__ == "__main__":
+    print(WebScraper(sys.argv[1]))
