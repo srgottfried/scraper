@@ -5,6 +5,7 @@ from datetime import date
 from typing import Text, Dict
 import sys
 
+DEFAULT_CONFIG_URI = "config/options.json"
 
 class WebScraper:
     """
@@ -14,38 +15,43 @@ class WebScraper:
     """
 
     def __init__(self, url: Text = None) -> None:
-        self.DEFAULT_CONFIG_URI = "config/options.json"
-        self._url = None
-        self._all_data = {}
-        self._soup = None
-        self._conf = {}
-        if url:
-            self.scrap(url=url)
+        try:
+            self._url = None
+            self._all_data = {}
+            self._soup = None
+            self._conf = {}
+            if url:
+                self._url = self._digest_url(url)
+                self.scrap(url=self._url)
+        except Exception as e:
+            print(e)
 
     def scrap(self, url: Text) -> Dict:
-        self._url = url
+        self._url = self._digest_url(url)
         self._get_soup()
         self._get_conf()
         self._scrap_default_metadata()
         self._scrap_custom_metadata()
         return self._all_data
 
+    def _digest_url(self, url: Text) -> Text:
+        if url.startswith("www."):
+            url = "http://" + url
+        return url
+
     def _get_soup(self) -> None:
-        try:
-            response = requests.get(self._url)
-            if response and response.status_code == 200:
-                html = response.content
-                self._soup = BeautifulSoup(html, "lxml")
-            else:
-                raise requests.RequestException(
-                    "Connection error.\nStatus code: " + response.status_code
-                )
-        except:
-            raise requests.RequestException("Connection error.")
+        response = requests.get(self._url)
+        if response and response.status_code == 200:
+            html = response.content
+            self._soup = BeautifulSoup(html, "lxml")
+        else:
+            raise requests.RequestException(
+                "Connection error.\nStatus code: " + response.status_code
+            )
 
     def _get_conf(self) -> None:
         try:
-            file = open(file=self.DEFAULT_CONFIG_URI, mode="r", encoding="UTF8")
+            file = open(file=DEFAULT_CONFIG_URI, mode="r", encoding="UTF8")
             self._conf = json.loads(file.read())
         except:
             raise FileNotFoundError("options.json file not found")
@@ -55,8 +61,8 @@ class WebScraper:
     def _scrap_default_metadata(self) -> None:
         try:
             self._all_data["url"] = self._url
-            self._all_data["title"] = self._soup.title.string
             self._all_data["date"] = str(date.today())
+            self._all_data["title"] = self._soup.title.string
         except:
             raise Exception("Error building default metadata")
 
