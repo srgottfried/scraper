@@ -5,7 +5,7 @@ install:
 	@sudo apt -y upgrade > /dev/null 2>&1
 	@sudo apt install python3 -y > /dev/null 2>&1
 	@sudo apt install python3-pip > /dev/null 2>&1
-	@make env > /dev/null
+	@make venv > /dev/null
 
 venv:
 	@python3 -m venv env
